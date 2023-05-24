@@ -8,20 +8,20 @@ openai.api_key = ""
 
 
 for seed in [5768, 78516, 944601]:  
-    for data_category in ["lab-manual-split-combine"]:
+    for data_category in ["numclaim"]:
         start_t = time()
         # load training data
         test_data_path = "../data/test/" + data_category + "-test" + "-" + str(seed) + ".xlsx"
         data_df = pd.read_excel(test_data_path)
 
 
-        sentences = data_df['sentence'].to_list()
+        sentences = data_df['text'].to_list()
         labels = data_df['label'].to_numpy()
 
         output_list = []
         for i in range(len(sentences)): 
             sen = sentences[i]
-            message = "Discard all the previous instructions. Behave like you are an expert sentence classifier. Classify the following sentence from FOMC into 'HAWKISH', 'DOVISH', or 'NEUTRAL' class. Label 'HAWKISH' if it is corresponding to tightening of the monetary policy, 'DOVISH' if it is corresponding to easing of the monetary policy, or 'NEUTRAL' if the stance is neutral. Provide the label in the first line and provide a short explanation in the second line. The sentence: " + sen
+            message = "Discard all the previous instructions. Behave like you are an expert sentence sentiment classifier. Classify the following sentence into 'INCLAIM', or 'OUTOFCLAIM' class. Label 'INCLAIM' if consist of a claim and not just factual past or present information, or 'OUTOFCLAIM' if it has just factual past or present information. Provide the label in the first line and provide a short explanation in the second line. The sentence: " + sen
 
             prompt_json = [
                     {"role": "user", "content": message},

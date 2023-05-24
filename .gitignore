@@ -160,3 +160,5 @@ cython_debug/
 #.idea/
 
 *best_model.pt
+finer_ord/
+numclaim_detection/data/
