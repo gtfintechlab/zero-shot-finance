@@ -1,0 +1,24 @@
+{
+    "experiment_name": "roberta-large-best",
+    "experiment_version": 1.0,
+    "description": "RoBERTa model trained on news NER data",
+    "seeds": [
+        5768, 78516, 944601
+    ],
+    "epsilon": 1e-2,
+    "batch_sizes": [
+        4
+    ],
+    "learning_rates": [
+        1e-5
+    ],
+    "language-model": "roberta-large",
+    "num_epochs": 100,
+    "early_stopping_limit": 7,
+    "train_data_path": "../data/train/news_acl_42_1_1_gold_data_generated_data.csv.gz",
+    "val_data_path": "../data/train/news_acl_42_val_split_1_1_gold_data_generated_data.csv.gz",
+    "test_data_path": "../data/test/news_acl_42_test_split_1_1_gold_data_generated_data.csv.gz",
+    "results_save_path": "../data/grid_search_results",
+    "gpu": 0,
+    "int2str": {"0": "O", "1": "PER_B", "2": "PER_I", "3": "LOC_B", "4": "LOC_I", "5": "ORG_B", "6": "ORG_I"}
+}
