@@ -4,7 +4,7 @@ from time import sleep, time
 from datetime import date
 today = date.today()
 
-openai.api_key = ""
+openai.api_key = "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"
 
 
 for seed in [5768, 78516, 944601]:  
@@ -46,4 +46,4 @@ for seed in [5768, 78516, 944601]:
         results = pd.DataFrame(output_list, columns=["true_label", "original_sent", "text_output"])
 
         time_taken = int((time() - start_t)/60.0)
-        results.to_csv(f'../data/llm_prompt_outputs/chatgpt_{data_category}_{seed}_{today.strftime("%d_%m_%Y")}_{time_taken}.csv', index=False)
+        results.to_csv(f'../data/llm_prompt_outputs/gpt4_{data_category}_{seed}_{today.strftime("%d_%m_%Y")}_{time_taken}.csv', index=False)
