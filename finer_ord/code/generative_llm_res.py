@@ -33,7 +33,7 @@ missing_perc_list = []
 
 files = os.listdir('../data/llm_prompt_outputs')
 
-files_xls = [f for f in files if 'h2o' in f]
+files_xls = [f for f in files if 'falcon' in f]
 
 for file in files_xls:
     df = pd.read_pickle('../data/llm_prompt_outputs/' + file)

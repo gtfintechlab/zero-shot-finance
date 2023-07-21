@@ -11,7 +11,7 @@ today = date.today()
 openai.api_key = APIKeyConstants.OPENAI_API_KEY
 
 for seed in [5768, 78516, 944601]:  
-    for data_category in ["lab-manual-split-combine"]:
+    for data_category in ["FPB-sentiment-analysis-allagree"]:
         start_t = time()
         # load training data
         test_data_path = "../data/test/" + data_category + "-test" + "-" + str(seed) + ".xlsx"
@@ -24,7 +24,7 @@ for seed in [5768, 78516, 944601]:
         output_list = []
         for i in range(len(sentences)): 
             sen = sentences[i]
-            message = "Discard all the previous instructions. Behave like you are an expert sentence classifier. Classify the following sentence from FOMC into 'HAWKISH', 'DOVISH', or 'NEUTRAL' class. Label 'HAWKISH' if it is corresponding to tightening of the monetary policy, 'DOVISH' if it is corresponding to easing of the monetary policy, or 'NEUTRAL' if the stance is neutral. Provide the label in the first line and provide a short explanation in the second line. The sentence: " + sen
+            message = "Discard all the previous instructions. Behave like you are an expert sentence sentiment classifier. Classify the following sentence into 'NEGATIVE', 'POSITIVE', or 'NEUTRAL' class. Label 'NEGATIVE' if it is corresponding to negative sentiment, 'POSITIVE' if it is corresponding to positive sentiment, or 'NEUTRAL' if the sentiment is neutral. Provide the label in the first line and provide a short explanation in the second line. The sentence: " + sen
 
             prompt_json = [
                     {"role": "user", "content": message},
@@ -42,7 +42,6 @@ for seed in [5768, 78516, 944601]:
                 sleep(10.0)
 
             answer = chat_completion.choices[0].message.content
-            # print(answer)
             output_list.append([labels[i], sen, answer])
             sleep(6.0) 
 
