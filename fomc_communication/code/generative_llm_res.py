@@ -7,15 +7,18 @@ from sklearn.metrics import f1_score
 from sklearn.metrics import accuracy_score
 
 def decode(x):
-    list_words = word_tokenize(x)
-    label_word = list_words[0].lower()
-    if label_word == "dovish":
-        return 0
-    elif label_word == "hawkish":
-        return 1
-    elif label_word == "neutral":
-        return 2
-    else: 
+    try:
+        list_words = word_tokenize(x)
+        label_word = list_words[0].lower()
+        if "dovish" in label_word:
+            return 0
+        elif "hawkish" in label_word:
+            return 1
+        elif "neutral" in label_word:
+            return 2
+        else: 
+            return -1
+    except:
         return -1
 
 
@@ -25,7 +28,7 @@ missing_perc_list = []
 
 files = os.listdir('../data/llm_prompt_outputs')
 
-files_xls = [f for f in files if 'h2o' in f]
+files_xls = [f for f in files if 'palm' in f]
 
 for file in files_xls:
     df = pd.read_csv('../data/llm_prompt_outputs/' + file)

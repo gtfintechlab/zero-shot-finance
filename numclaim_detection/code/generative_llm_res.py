@@ -9,9 +9,9 @@ from sklearn.metrics import accuracy_score
 def decode(x):
     list_words = word_tokenize(x)
     label_word = list_words[0].lower()
-    if label_word == "outofclaim":
+    if "outofclaim" in label_word:
         return 0
-    elif label_word == "inclaim":
+    elif "inclaim" in label_word:
         return 1
     else: 
         return -1
@@ -23,7 +23,7 @@ missing_perc_list = []
 
 files = os.listdir('../data/llm_prompt_outputs')
 
-files_xls = [f for f in files if 'h2o' in f]
+files_xls = [f for f in files if 'falcon' in f]
 
 for file in files_xls:
     df = pd.read_csv('../data/llm_prompt_outputs/' + file)
