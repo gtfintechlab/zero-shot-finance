@@ -1,6 +1,21 @@
 import re
 import subprocess
 
+from pynvml import nvmlInit, nvmlDeviceGetHandleByIndex, nvmlDeviceGetMemoryInfo
+
+
+def print_gpu_utilization():
+    nvmlInit()
+    handle = nvmlDeviceGetHandleByIndex(0)
+    info = nvmlDeviceGetMemoryInfo(handle)
+    print(f"GPU memory occupied: {info.used//1024**2} MB.")
+
+
+def print_summary(result):
+    print(f"Time: {result.metrics['train_runtime']:.2f}")
+    print(f"Samples/second: {result.metrics['train_samples_per_second']:.2f}")
+    print_gpu_utilization()
+
 
 def get_gpu_with_lowest_utilization():
     try:
@@ -31,12 +46,3 @@ def get_gpu_with_lowest_utilization():
     except subprocess.CalledProcessError as e:
         print("Error: nvidia-smi command failed.")
         return None
-
-
-# Test the function
-if __name__ == "__main__":
-    gpu_index = get_gpu_with_lowest_utilization()
-    if gpu_index is not None:
-        print(f"The GPU with the lowest utilization is GPU-{gpu_index}.")
-    else:
-        print("Failed to retrieve GPU utilization information.")

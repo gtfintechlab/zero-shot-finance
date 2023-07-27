@@ -2,7 +2,7 @@ import subprocess
 
 import pytest
 
-from src.utils import get_gpu_with_lowest_utilization
+from utils.cuda_utils import get_gpu_with_lowest_utilization
 
 
 @pytest.fixture

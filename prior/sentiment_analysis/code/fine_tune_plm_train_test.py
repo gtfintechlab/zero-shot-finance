@@ -8,11 +8,16 @@ import torch
 import torch.optim as optim
 from sklearn.metrics import f1_score
 from torch.utils.data import DataLoader, TensorDataset
-from transformers import (AutoModelForSequenceClassification, AutoTokenizer,
-                          BertForSequenceClassification, BertTokenizerFast,
-                          RobertaForSequenceClassification,
-                          RobertaTokenizerFast, XLNetForSequenceClassification,
-                          XLNetTokenizerFast)
+from transformers import (
+    AutoModelForSequenceClassification,
+    AutoTokenizer,
+    BertForSequenceClassification,
+    BertTokenizerFast,
+    RobertaForSequenceClassification,
+    RobertaTokenizerFast,
+    XLNetForSequenceClassification,
+    XLNetTokenizerFast,
+)
 
 # sys.path.append('..')
 
