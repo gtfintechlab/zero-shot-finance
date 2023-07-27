@@ -7,8 +7,8 @@ import torch
 from instruct_pipeline import InstructionTextGenerationPipeline
 
 from src.config import QUANTIZATION, ROOT_DIRECTORY, SEEDS, TODAY
-from src.utils import get_gpu_with_lowest_utilization
 from src.dolly.model import get_dolly
+from src.utils import get_gpu_with_lowest_utilization
 
 cuda_device = get_gpu_with_lowest_utilization()
 cuda_n_gpus = torch.cuda.device_count()

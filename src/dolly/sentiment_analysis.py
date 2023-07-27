@@ -6,7 +6,8 @@ import pandas as pd
 import torch
 from instruct_pipeline import InstructionTextGenerationPipeline
 
-from src.config import QUANTIZATION, ROOT_DIRECTORY, SEEDS, TODAY
+import init_project
+from init_project import QUANTIZATION, ROOT_DIRECTORY, SEEDS, TODAY
 from src.dolly.model import get_dolly
 from src.utils import get_gpu_with_lowest_utilization
 
