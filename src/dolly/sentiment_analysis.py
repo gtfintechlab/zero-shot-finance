@@ -15,19 +15,20 @@ import pandas as pd
 import torch
 from instruct_pipeline import InstructionTextGenerationPipeline
 
-from src.config import QUANTIZATION, SEEDS, TODAY, BATCH_SIZE
+from src.config import QUANTIZATION, SEEDS, TODAY#, BATCH_SIZE
 from src.utils.logging import setup_logger
 from src.dolly.model import get_dolly
-from src.utils.model_utils import create_batches
+#from src.utils.model_utils import create_batches
 
 logger = setup_logger(__name__)
 
 if __name__ == "__main__":
+    # Set task name and data category
+    task_name = "sentiment-analysis"
+    data_category = f"FPB-{task_name}-allagree"
+
     # get model and tokenizer
     model, tokenizer = get_dolly(QUANTIZATION)
-
-    # set data category
-    data_category = "FPB-sentiment-analysis-allagree"
 
     # get pipeline ready for instruction text generation
     generate_text = InstructionTextGenerationPipeline(model=model, tokenizer=tokenizer)
@@ -59,21 +60,26 @@ if __name__ == "__main__":
 
         logger.info("Prompts generated. Running model inference...")
 
-        all_results = []
-        for batch in tqdm(
-            create_batches(prompts_list, BATCH_SIZE), desc="Processing batches"
-        ):
-            batch_results = generate_text(batch)
-            all_results.extend(batch_results)
+        res = generate_text(prompts_list)
         logger.info("Model inference completed. Processing outputs...")
+        # WIP: Batching
+        # all_results = []
+        # for batch in tqdm(
+        #     create_batches(prompts_list, BATCH_SIZE), desc="Processing batches"
+        # ):
+        #     batch_results = generate_text(batch)
+        #     all_results.extend(batch_results)
 
         output_list = []
-        for i in tqdm(range(len(all_results)), desc="Processing outputs"):
-            output_list.append(
-                [labels[i], sentences[i], all_results[i][0]["generated_text"]]
-            )
-
+        for i in range(len(res)):
+            output_list.append([labels[i], sentences[i], res[i][0]["generated_text"]])
         logger.info(f"Number of outputs: {len(output_list)}")
+        # WIP: Batching
+        # for i in tqdm(range(len(all_results)), desc="Processing outputs"):
+        #     output_list.append(
+        #         [labels[i], sentences[i], all_results[i][0]["generated_text"]]
+        #     )
+
         results = pd.DataFrame(
             output_list, columns=["true_label", "original_sent", "text_output"]
         )
