@@ -61,7 +61,7 @@ def main(args):
         TASK_DIRECTORY = DATA_DIRECTORY / args.task_name
         TASK_DIRECTORY.mkdir(parents=True, exist_ok=True)
         PROMPT_OUTPUTS = (
-                TASK_DIRECTORY / "llm_prompt_outputs" / args.task_name / args.quantization
+                TASK_DIRECTORY / "llm_prompt_outputs"  / args.quantization
         )
         PROMPT_OUTPUTS.mkdir(parents=True, exist_ok=True)
         test_data_fp = TEST_DIRECTORY / f"{data_category}-test-{seed}.xlsx"
