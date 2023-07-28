@@ -60,7 +60,6 @@ def main(args):
         PROMPT_OUTPUTS = TASK_DIRECTORY / "llm_prompt_outputs" / args.quantization
         PROMPT_OUTPUTS.mkdir(parents=True, exist_ok=True)
         test_data_fp = PROMPT_OUTPUTS / f"{data_category}-test-{seed}.xlsx"
-        results_fp = f"dolly_{seed}_{TODAY.strftime('%d_%m_%Y')}_{time_taken}.csv"
 
         start_t = time()
         logger.info(f"Loading test data from {test_data_fp}")
@@ -83,11 +82,12 @@ def main(args):
         for i in range(len(res)):
             output_list.append([labels[i], sentences[i], res[i][0]["generated_text"]])
         logger.debug(f"Number of outputs: {len(output_list)}")
+        time_taken = int((time() - start_t) / 60.0)
 
         results = pd.DataFrame(
             output_list, columns=["true_label", "original_sent", "text_output"]
         )
-        time_taken = int((time() - start_t) / 60.0)
+        results_fp = f"dolly_{seed}_{TODAY.strftime('%d_%m_%Y')}_{time_taken}.csv"
         logger.info(f"Time taken: {time_taken} minutes")
         results.to_csv(
             PROMPT_OUTPUTS / results_fp,
