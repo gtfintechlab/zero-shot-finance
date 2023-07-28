@@ -203,6 +203,7 @@ class InstructionTextGenerationPipeline(Pipeline):
                     except ValueError:
                         end_pos = None
 
+                    # TODO: see if .batch_decode() can speed this up
                     decoded = self.tokenizer.decode(
                         sequence[response_pos + 1 : end_pos]
                     ).strip()
@@ -210,6 +211,7 @@ class InstructionTextGenerationPipeline(Pipeline):
             if not decoded:
                 # Otherwise we'll decode everything and use a regex to find the response and end.
 
+                # TODO: see if .batch_decode() can speed this up
                 fully_decoded = self.tokenizer.decode(sequence)
 
                 # The response appears after "### Response:".  The model has been trained to append "### End" at the

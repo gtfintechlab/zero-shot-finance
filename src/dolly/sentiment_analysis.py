@@ -5,7 +5,6 @@ ROOT_DIRECTORY = Path(__file__).resolve().parent.parent.parent
 if str(ROOT_DIRECTORY) not in sys.path:
     sys.path.insert(0, str(ROOT_DIRECTORY))
 TEST_DATA = ROOT_DIRECTORY / "data" / "test"
-PROMPT_OUTPUTS = TEST_DATA / "llm_prompt_outputs"
 
 from time import time
 
@@ -86,6 +85,7 @@ if __name__ == "__main__":
         )
         time_taken = int((time() - start_t) / 60.0)
         logger.info(f"Time taken: {time_taken} minutes")
+        PROMPT_OUTPUTS = TEST_DATA / "llm_prompt_outputs" / task_name
         PROMPT_OUTPUTS.mkdir(parents=True, exist_ok=True)
         results_fp = f"dolly_{seed}_{TODAY.strftime('%d_%m_%Y')}_{time_taken}.csv"
         results.to_csv(
