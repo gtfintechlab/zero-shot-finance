@@ -2,7 +2,7 @@ import os
 
 import pandas as pd
 
-files = os.listdir("../../data/sentiment_analysis/grid_search_results")
+files = os.listdir("../data/sentiment_analysis/grid_search_results")
 
 files_xls = [f for f in files if ".xlsx" in f]
 

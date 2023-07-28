@@ -5,7 +5,7 @@ from time import time
 import numpy as np
 import pandas as pd
 import torch
-from h2oai_pipeline import H2OTextGenerationPipeline
+from sentiment_analysis_h2oai_pipeline import H2OTextGenerationPipeline
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 today = date.today()
@@ -36,8 +36,9 @@ for seed in [5768, 78516, 944601]:
 
     start_t = time()
     # load test data
+    data_category = "FPB-sentiment-analysis-allagree"
     test_data_path = (
-        "../data/test/lab-manual-split-combine-test" + "-" + str(seed) + ".xlsx"
+        "../data/test/" + data_category + "-test" + "-" + str(seed) + ".xlsx"
     )
     data_df = pd.read_excel(test_data_path)
 
@@ -47,7 +48,7 @@ for seed in [5768, 78516, 944601]:
     prompts_list = []
     for sen in sentences:
         prompt = (
-            "Discard all the previous instructions. Behave like you are an expert sentence classifier. Classify the following sentence from FOMC into 'HAWKISH', 'DOVISH', or 'NEUTRAL' class. Label 'HAWKISH' if it is corresponding to tightening of the monetary policy, 'DOVISH' if it is corresponding to easing of the monetary policy, or 'NEUTRAL' if the stance is neutral. Provide the label in the first line and provide a short explanation in the second line. The sentence: "
+            "Discard all the previous instructions. Behave like you are an expert sentence sentiment classifier. Classify the following sentence into 'NEGATIVE', 'POSITIVE', or 'NEUTRAL' class. Label 'NEGATIVE' if it is corresponding to negative sentiment, 'POSITIVE' if it is corresponding to positive sentiment, or 'NEUTRAL' if the sentiment is neutral. Provide the label in the first line and provide a short explanation in the second line. The sentence: "
             + sen
         )
         prompts_list.append(prompt)

@@ -6,16 +6,14 @@ from time import sleep, time
 import openai
 import pandas as pd
 
-sys.path.insert(0, "/home/research/git repos/zero-shot-finance")
-from api_keys import APIKeyConstants
-
 today = date.today()
-openai.api_key = APIKeyConstants.OPENAI_API_KEY
+
+openai.api_key = ""
 
 
 start_t = time()
 # load training data
-test_data_path = "../../data/finer_ord/test/test.csv"
+test_data_path = "../data/finer_ord/test/test.csv"
 data_df = pd.read_csv(test_data_path)
 
 grouped_df = (
@@ -42,7 +40,10 @@ for index in range(grouped_df.shape[0]):
     ]
     try:
         chat_completion = openai.ChatCompletion.create(
-            model="gpt-4", messages=prompt_json, temperature=0.0, max_tokens=1000
+            model="gpt-3.5-turbo",
+            messages=prompt_json,
+            temperature=0.0,
+            max_tokens=1000,
         )
     except Exception as e:
         print(e)
@@ -53,7 +54,7 @@ for index in range(grouped_df.shape[0]):
 
     output_list.append([label_list, sen, answer])
 
-    sleep(6.0)
+    sleep(1.0)
 
 
 results = pd.DataFrame(
@@ -62,5 +63,5 @@ results = pd.DataFrame(
 
 time_taken = int((time() - start_t) / 60.0)
 results.to_pickle(
-    f'../data/llm_prompt_outputs/gpt4_{today.strftime("%d_%m_%Y")}_{time_taken}'
+    f'../data/llm_prompt_outputs/chatgpt_{today.strftime("%d_%m_%Y")}_{time_taken}'
 )

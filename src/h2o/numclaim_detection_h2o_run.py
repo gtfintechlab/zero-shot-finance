@@ -5,7 +5,7 @@ from time import time
 import numpy as np
 import pandas as pd
 import torch
-from h2oai_pipeline import H2OTextGenerationPipeline
+from numclaim_detection_h2oai_pipeline import H2OTextGenerationPipeline
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 today = date.today()
@@ -36,19 +36,16 @@ for seed in [5768, 78516, 944601]:
 
     start_t = time()
     # load test data
-    data_category = "FPB-sentiment-analysis-allagree"
-    test_data_path = (
-        "../data/test/" + data_category + "-test" + "-" + str(seed) + ".xlsx"
-    )
+    test_data_path = "../data/test/numclaim-test" + "-" + str(seed) + ".xlsx"
     data_df = pd.read_excel(test_data_path)
 
-    sentences = data_df["sentence"].to_list()
+    sentences = data_df["text"].to_list()
     labels = data_df["label"].to_numpy()
 
     prompts_list = []
     for sen in sentences:
         prompt = (
-            "Discard all the previous instructions. Behave like you are an expert sentence sentiment classifier. Classify the following sentence into 'NEGATIVE', 'POSITIVE', or 'NEUTRAL' class. Label 'NEGATIVE' if it is corresponding to negative sentiment, 'POSITIVE' if it is corresponding to positive sentiment, or 'NEUTRAL' if the sentiment is neutral. Provide the label in the first line and provide a short explanation in the second line. The sentence: "
+            "Discard all the previous instructions. Behave like you are an expert sentence sentiment classifier. Classify the following sentence into 'INCLAIM', or 'OUTOFCLAIM' class. Label 'INCLAIM' if consist of a claim and not just factual past or present information, or 'OUTOFCLAIM' if it has just factual past or present information. Provide the label in the first line and provide a short explanation in the second line. The sentence: "
             + sen
         )
         prompts_list.append(prompt)
