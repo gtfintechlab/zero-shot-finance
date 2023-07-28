@@ -24,8 +24,8 @@ logger = setup_logger(__name__)
 
 if __name__ == "__main__":
     # Set task name and data category
-    task_name = "sentiment-analysis"
-    data_category = f"FPB-{task_name}-allagree"
+    task_name = "sentiment_analysis"
+    data_category = f"FPB-sentiment-analysis-allagree"
 
     # get model and tokenizer
     model, tokenizer = get_dolly(QUANTIZATION)
