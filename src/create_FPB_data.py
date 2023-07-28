@@ -6,7 +6,8 @@ from pathlib import Path
 import sys
 import datasets
 import zipfile
-
+from src.utils.logging import setup_logger
+logger = setup_logger(__name__)
 
 def encode(label_word):
     if label_word == "positive":
@@ -20,13 +21,16 @@ def encode(label_word):
 
 
 def get_FPB_dataset():
+    logger.info(f"Getting FPB from HuggingFace datasets")
     # Load the dataset
     dataset = datasets.load_dataset("financial_phrasebank")
     # Path to save the dataset as a zip file
     zip_path = DATA_DIRECTORY / "FinancialPhraseBank-v1.0.zip"
     # Save the dataset to a zip file
+    logger.info(f"Saving FPB to {zip_path}")
     dataset.save_to_disk(zip_path)
     # Unzip the file
+    logger.info(f"Unzipping {zip_path}"
     with zipfile.ZipFile(zip_path, "r") as zip_ref:
         zip_ref.extractall("ExtractedFinancialPhraseBank")
 
@@ -34,18 +38,19 @@ def get_FPB_dataset():
 def process_data():
     FPB_DIRECTORY = DATA_DIRECTORY / "ExtractedFinancialPhraseBank"
     FPB_DIRECTORY.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Processing the FPB data into {FPB_DIRECTORY}")
     df = pd.read_csv(
         FPB_DIRECTORY / "Sentences_AllAgree.txt",
         sep="@",
         encoding="latin1",
         names=["sentence", "label"],
     )
-
     df["label"] = df["label"].apply(lambda x: encode(x))
-    SENTIMENT_DIRECTORY = DATA_DIRECTORY / "sentiment_analysis"
-    TRAIN_DIRECTORY = SENTIMENT_DIRECTORY / "train"
+
+    # TODO: have it build to the directories when reused i.e. numclaim_detection
+    TRAIN_DIRECTORY = DATA_DIRECTORY/ "sentiment_analysis" / "train"
     TRAIN_DIRECTORY.mkdir(parents=True, exist_ok=True)
-    TEST_DIRECTORY = SENTIMENT_DIRECTORY / "test"
+    TEST_DIRECTORY = DATA_DIRECTORY/ "sentiment_analysis" / "test"
     TEST_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
     for seed in tqdm(SEEDS):
@@ -66,5 +71,6 @@ if __name__ == "__main__":
         sys.path.insert(0, str(ROOT_DIRECTORY))
     DATA_DIRECTORY = ROOT_DIRECTORY / "data"
     DATA_DIRECTORY.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Building the FinancialPhraseBank dataset in data directory {DATA_DIRECTORY}")
     get_FPB_dataset()
     process_data()

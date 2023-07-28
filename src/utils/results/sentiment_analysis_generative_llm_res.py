@@ -2,22 +2,9 @@ import os
 
 import numpy as np
 import pandas as pd
-from nltk import word_tokenize
 from sklearn.metrics import accuracy_score, f1_score
 
-
-def decode(x):
-    list_words = word_tokenize(x)
-    label_word = list_words[0].lower()
-    if "positive" in label_word:
-        return 0
-    elif "negative" in label_word:
-        return 1
-    elif "neutral" in label_word:
-        return 2
-    else:
-        return -1
-
+from utils.results.decode import sentiment_analysis_decode
 
 acc_list = []
 f1_list = []
@@ -30,7 +17,7 @@ files_xls = [f for f in files if "falcon" in f]
 for file in files_xls:
     df = pd.read_csv("../data/llm_prompt_outputs/" + file)
 
-    df["predicted_label"] = df["text_output"].apply(lambda x: decode(x))
+    df["predicted_label"] = df["text_output"].apply(lambda x: sentiment_analysis_decode(x))
     acc_list.append(accuracy_score(df["true_label"], df["predicted_label"]))
     f1_list.append(
         f1_score(df["true_label"], df["predicted_label"], average="weighted")

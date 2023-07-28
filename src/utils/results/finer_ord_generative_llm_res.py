@@ -2,29 +2,9 @@ import os
 
 import numpy as np
 import pandas as pd
-from nltk import word_tokenize
 from sklearn.metrics import accuracy_score, classification_report, f1_score
 
-
-def decode(label_word):
-    label_word = label_word.lower()
-    if "other" in label_word:
-        return 0
-    elif "person_b" in label_word:
-        return 1
-    elif "person_i" in label_word:
-        return 2
-    elif "location_b" in label_word:
-        return 3
-    elif "location_i" in label_word:
-        return 4
-    elif "organisation_b" in label_word:
-        return 5
-    elif "organisation_i" in label_word:
-        return 6
-    else:
-        return -1
-
+from utils.results.decode import finer_ord_decode
 
 acc_list = []
 f1_list = []
@@ -60,13 +40,13 @@ for file in files_xls:
                 # print(original_sent_split[sub_index_gold], text_output_token_label[0], text_output_token_label[1], "AAA")
                 if original_sent_split[sub_index_gold] == text_output_token_label[0]:
                     sub_index_output = sub_index_output + 1
-                    predicted_labels.append(decode(text_output_token_label[1]))
+                    predicted_labels.append(finer_ord_decode(text_output_token_label[1]))
                 elif original_sent_split[sub_index_gold] in text_output_token_label[0]:
                     if text_output_token_label[0].endswith(
                         original_sent_split[sub_index_gold]
                     ):
                         sub_index_output = sub_index_output + 1
-                    predicted_labels.append(decode(text_output_token_label[1]))
+                    predicted_labels.append(finer_ord_decode(text_output_token_label[1]))
                 else:
                     predicted_labels.append(-1)
             except:
