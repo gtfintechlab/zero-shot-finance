@@ -32,8 +32,6 @@ from src.args import parse_args
 
 
 def main(args):
-    # TODO: remove this argument if the script can generalize beyond dolly-v2-12b
-    args.model = "databricks/dolly-v2-12b"
 
     data_category = task_data_map[args.task_name]["data_category"]
     instruction = task_data_map[args.task_name]["instruction"]

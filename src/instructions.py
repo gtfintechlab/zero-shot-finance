@@ -8,7 +8,7 @@ task_data_map = {
         "data_category": "FPB-sentiment-analysis-allagree",
         "instruction": instruction_sentiment_analysis,
     },
-    "numclaim": {
+    "numclaim_detection": {
         "data_category": "FPB-sentiment-analysis-allagree",
         "instruction": instruction_numclaim_detection,
     },
