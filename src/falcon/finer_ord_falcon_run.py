@@ -36,7 +36,7 @@ pipeline = transformers.pipeline(
 
 start_t = time()
 # load training data
-test_data_path = "../data/finer_ord/test/test.csv"
+test_data_path = "../../data/finer_ord/test/test.csv"
 data_df = pd.read_csv(test_data_path)
 
 grouped_df = (
