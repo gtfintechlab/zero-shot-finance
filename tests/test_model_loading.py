@@ -1,8 +1,9 @@
-import pytest
-from transformers import AutoModelForCausalLM, AutoTokenizer
-import torch
 import sys
 from pathlib import Path
+
+import pytest
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 ROOT_DIRECTORY = Path(__file__).resolve().parent.parent.parent
 if str(ROOT_DIRECTORY) not in sys.path:

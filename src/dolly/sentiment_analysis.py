@@ -8,17 +8,18 @@ TEST_DATA = ROOT_DIRECTORY / "data" / "test"
 PROMPT_OUTPUTS = TEST_DATA / "llm_prompt_outputs"
 
 from time import time
-from tqdm.auto import tqdm
 
 import numpy as np
 import pandas as pd
 import torch
 from instruct_pipeline import InstructionTextGenerationPipeline
+from tqdm.auto import tqdm
 
-from src.config import QUANTIZATION, SEEDS, TODAY#, BATCH_SIZE
-from src.utils.logging import setup_logger
+from src.config import QUANTIZATION, SEEDS, TODAY  # , BATCH_SIZE
 from src.dolly.model import get_dolly
-#from src.utils.model_utils import create_batches
+from src.utils.logging import setup_logger
+
+# from src.utils.model_utils import create_batches
 
 logger = setup_logger(__name__)
 

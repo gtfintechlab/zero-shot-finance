@@ -1,7 +1,7 @@
 import os
-from time import time
-from pathlib import Path
 import sys
+from pathlib import Path
+from time import time
 
 ROOT_DIRECTORY = Path(__file__).resolve().parent.parent.parent
 if str(ROOT_DIRECTORY) not in sys.path:

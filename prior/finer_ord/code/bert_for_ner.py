@@ -13,7 +13,8 @@ import torch.optim as optim
 from sklearn.metrics import classification_report, confusion_matrix, f1_score
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
-from transformers import RobertaForTokenClassification, RobertaTokenizerFast, pipeline
+from transformers import (RobertaForTokenClassification, RobertaTokenizerFast,
+                          pipeline)
 
 logging.basicConfig()
 

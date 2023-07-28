@@ -1,10 +1,10 @@
 import os
+from pathlib import Path
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from src.utils.logging import setup_logger
-from pathlib import Path
 
 ROOT_DIRECTORY = Path(__file__).resolve().parent.parent.parent
 CACHE_DIR = str(ROOT_DIRECTORY / ".model_cache")
