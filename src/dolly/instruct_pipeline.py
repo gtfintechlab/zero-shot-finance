@@ -30,7 +30,8 @@ PROMPT_FOR_GENERATION_FORMAT = """{intro}
 
 
 def get_special_token_id(tokenizer: PreTrainedTokenizer, key: str) -> int:
-    """Gets the token ID for a given string that has been added to the tokenizer as a special token.
+    """
+    Gets the token ID for a given string that has been added to the tokenizer as a special token.
     When training, we configure the tokenizer so that the sequences like "### Instruction:" and "### End" are
     treated specially and converted to a single, new token.  This retrieves the token ID each of these keys map to.
     Args:
@@ -59,9 +60,10 @@ class InstructionTextGenerationPipeline(Pipeline):
         top_k: int = 0,
         **kwargs,
     ):
-        """Initialize the pipeline
+        """
+        Initialize the pipeline
         Args:
-            do_sample (bool, optional): Whether or not to use sampling. Defaults to True.
+            do_sample (bool, optional): Whether to use sampling. Defaults to True.
             max_new_tokens (int, optional): Max new tokens after the prompt to generate. Defaults to 128.
             top_p (float, optional): If set to float < 1, only the smallest set of most probable tokens with
                 probabilities that add up to top_p or higher are kept for generation. Defaults to 0.92.

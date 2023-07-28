@@ -2,7 +2,6 @@ import os
 from datetime import date
 from time import time
 
-import numpy as np
 import pandas as pd
 import torch
 from instruct_pipeline import InstructionTextGenerationPipeline

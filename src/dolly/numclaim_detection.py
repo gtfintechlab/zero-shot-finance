@@ -1,23 +1,33 @@
 import os
 from time import time
+from pathlib import Path
+import sys
+
+ROOT_DIRECTORY = Path(__file__).resolve().parent.parent.parent
+if str(ROOT_DIRECTORY) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIRECTORY))
 
 import numpy as np
 import pandas as pd
 import torch
 from instruct_pipeline import InstructionTextGenerationPipeline
 
-from src.config import QUANTIZATION, ROOT_DIRECTORY, SEEDS, TODAY
+from src.config import QUANTIZATION, SEEDS, TODAY
 from src.dolly.model import get_dolly
-from utils.cuda_utils import get_gpu_with_lowest_utilization
 
-cuda_device = get_gpu_with_lowest_utilization()
+# from utils.cuda_utils import get_gpu_with_lowest_utilization
+
+# cuda_device = get_gpu_with_lowest_utilization()
 cuda_n_gpus = torch.cuda.device_count()
 cuda_max_memory = f"{int(torch.cuda.mem_get_info()[0] / 1024 ** 3) - 2}GB"
 cuda_max_memory = {i: cuda_max_memory for i in range(cuda_n_gpus)}
 
 # set gpu
-os.environ["CUDA_VISIBLE_DEVICES"] = str(cuda_device)
-device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+device = 0
+os.environ["CUDA_VISIBLE_DEVICES"] = str(device)
+device = (
+    torch.device(f"cuda:{device}") if torch.cuda.is_available() else torch.device("cpu")
+)
 
 
 model, tokenizer = get_dolly(QUANTIZATION)

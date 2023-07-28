@@ -15,9 +15,10 @@ import pandas as pd
 import torch
 from instruct_pipeline import InstructionTextGenerationPipeline
 
-from src.config import QUANTIZATION, SEEDS, TODAY, setup_logger
+from src.config import QUANTIZATION, SEEDS, TODAY, BATCH_SIZE
+from src.utils.logging import setup_logger
 from src.dolly.model import get_dolly
-from src.utils import create_batches
+from src.utils.model_utils import create_batches
 
 logger = setup_logger(__name__)
 
@@ -58,7 +59,6 @@ if __name__ == "__main__":
 
         logger.info("Prompts generated. Running model inference...")
 
-        BATCH_SIZE = 24  # Define your desired batch size
         all_results = []
         for batch in tqdm(
             create_batches(prompts_list, BATCH_SIZE), desc="Processing batches"
@@ -79,8 +79,9 @@ if __name__ == "__main__":
         )
         time_taken = int((time() - start_t) / 60.0)
         logger.info(f"Time taken: {time_taken} minutes")
+        PROMPT_OUTPUTS.mkdir(parents=True, exist_ok=True)
+        results_fp = f"dolly_{seed}_{TODAY.strftime('%d_%m_%Y')}_{time_taken}.csv"
         results.to_csv(
-            PROMPT_OUTPUTS
-            / f"dolly_{seed}_{TODAY.strftime('%d_%m_%Y')}_{time_taken}.csv",
+            PROMPT_OUTPUTS / results_fp,
             index=False,
         )
