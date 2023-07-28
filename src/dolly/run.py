@@ -1,3 +1,13 @@
+"""
+IMPLEMENTED:
+- sentiment_analysis
+- numclaim_detection
+- fomc_communication
+
+NOT IMPLEMENTED (YET):
+- finer_ord
+"""
+
 import sys
 from pathlib import Path
 
@@ -12,24 +22,21 @@ import pandas as pd
 import torch
 from instruct_pipeline import InstructionTextGenerationPipeline
 from tqdm.auto import tqdm
-
-from src.config import QUANTIZATION, SEEDS, TODAY
-from src.dolly.model import get_dolly
+from src.config import SEEDS, TODAY
+from src.dolly.model import get_model
 from src.instructions import task_data_map
 from src.utils.logging import setup_logger
 
 logger = setup_logger(__name__)
+from src.args import parse_args
 
-if __name__ == "__main__":
-    # TODO: Have task name be a command line argument, which is mapped to the data categories
-    # TODO: Make sure that numclaim uses the same dataset as sentiment analysis
-    # Set task name and data category
-    task_name = "numclaim"
-    data_category = task_data_map[task_name]["data_category"]
-    instruction = task_data_map[task_name]["instruction"]
+
+def main(args):
+    data_category = task_data_map[args.task_name]["data_category"]
+    instruction = task_data_map[args.task_name]["instruction"]
 
     # get model and tokenizer
-    model, tokenizer = get_dolly(QUANTIZATION)
+    model, tokenizer = get_model(args)
 
     # get pipeline ready for instruction text generation
     generate_text = InstructionTextGenerationPipeline(model=model, tokenizer=tokenizer)
@@ -73,10 +80,18 @@ if __name__ == "__main__":
         )
         time_taken = int((time() - start_t) / 60.0)
         logger.info(f"Time taken: {time_taken} minutes")
-        PROMPT_OUTPUTS = TEST_DATA / "llm_prompt_outputs" / task_name
+        PROMPT_OUTPUTS = TEST_DATA / "llm_prompt_outputs" / args.task_name
         PROMPT_OUTPUTS.mkdir(parents=True, exist_ok=True)
+        # TODO: Add quantization level to either the folder hierarchy or the filename
         results_fp = f"dolly_{seed}_{TODAY.strftime('%d_%m_%Y')}_{time_taken}.csv"
         results.to_csv(
             PROMPT_OUTPUTS / results_fp,
             index=False,
         )
+        logger.info(f"Results saved to {PROMPT_OUTPUTS / results_fp}")
+
+
+if __name__ == "__main__":
+    args = parse_args()
+    args.model = "databricks/dolly-v2-12b"
+    main(args)
