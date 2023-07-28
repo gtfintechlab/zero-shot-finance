@@ -32,6 +32,9 @@ from src.args import parse_args
 
 
 def main(args):
+    # TODO: remove this argument if the script can generalize beyond dolly-v2-12b
+    args.model = "databricks/dolly-v2-12b"
+
     data_category = task_data_map[args.task_name]["data_category"]
     instruction = task_data_map[args.task_name]["instruction"]
 
@@ -80,9 +83,10 @@ def main(args):
         )
         time_taken = int((time() - start_t) / 60.0)
         logger.info(f"Time taken: {time_taken} minutes")
-        PROMPT_OUTPUTS = TEST_DATA / "llm_prompt_outputs" / args.task_name
+        PROMPT_OUTPUTS = (
+            TEST_DATA / "llm_prompt_outputs" / args.task_name / args.quantization
+        )
         PROMPT_OUTPUTS.mkdir(parents=True, exist_ok=True)
-        # TODO: Add quantization level to either the folder hierarchy or the filename
         results_fp = f"dolly_{seed}_{TODAY.strftime('%d_%m_%Y')}_{time_taken}.csv"
         results.to_csv(
             PROMPT_OUTPUTS / results_fp,
@@ -93,5 +97,4 @@ def main(args):
 
 if __name__ == "__main__":
     args = parse_args()
-    args.model = "databricks/dolly-v2-12b"
     main(args)
