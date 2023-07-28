@@ -3,7 +3,7 @@ import os
 import pandas as pd
 
 df = pd.read_csv(
-    "../../data/finer_ord/grid_search_results/roberta-large-best_1_0/results.csv"
+    "../../../data/finer_ord/grid_search_results/roberta-large-best_1_0/results.csv"
 )
 df_temp = df.groupby(["Learning Rate", "Batch Size"], as_index=False).agg(
     {

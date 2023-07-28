@@ -5,7 +5,7 @@ from time import time
 import numpy as np
 import pandas as pd
 import torch
-from fomc_communication_h2oai_pipeline import H2OTextGenerationPipeline
+from src.h2o.pipeline import H2OTextGenerationPipeline
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 today = date.today()
