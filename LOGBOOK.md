@@ -14,6 +14,12 @@ Runtimes are found in the original research. There were 453 sentences in the tes
 * [ ] Use `get_financial_phrasebank()` to download the dataset from HuggingFace for the project
 * [ ] See if `.batch_decode()` can speed up over `.decode` in `InstructionTextGenerationPipeline`
 * [ ] Replace all the dashes with underscores e.g. FPB-sentiment-analysis-allagree with FPB_sentiment_analysis_allagree
+* [ ] Convert data used for "finer_ord" from `.csv.` to `.xlsx` so I can use `pd.read_xlsx` instead
+* [ ] For dolly, give a control flow to separate the way "finer_ord" is handled compared to the other tasks
+
+### Askers?
+* [ ] Is the numclaim data is just the same as the sentiment analysis data ... there is no data folder for numclaims
+* [ ] Whats the deal with `lab-manual-split-combine-test` for FOMC data, 'test.csv' for finder_ord
 
 ## Thursday, 2023-07-27
 

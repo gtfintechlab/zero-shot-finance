@@ -1,67 +1,82 @@
-import os
-from datetime import date
+import sys
+from pathlib import Path
+
+ROOT_DIRECTORY = Path(__file__).resolve().parent.parent.parent
+if str(ROOT_DIRECTORY) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIRECTORY))
+
 from time import time
 
 import numpy as np
 import pandas as pd
 import torch
 from instruct_pipeline import InstructionTextGenerationPipeline
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from tqdm.auto import tqdm
 
-today = date.today()
-seeds = [5768, 78516, 944601]
+from src.config import QUANTIZATION, SEEDS, TODAY
+from src.dolly.model import get_dolly
+from src.utils.logging import setup_logger
+from src.instructions import task_data_map
 
-# set gpu
-os.environ["CUDA_VISIBLE_DEVICES"] = str("0")
-device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-print("Device assigned: ", device)
+logger = setup_logger(__name__)
 
-# get model and tokenizer
-tokenizer = AutoTokenizer.from_pretrained(
-    "databricks/dolly-v2-12b", padding_side="left"
-)
-model = AutoModelForCausalLM.from_pretrained(
-    "databricks/dolly-v2-12b", device_map="auto", torch_dtype=torch.bfloat16
-)
+if __name__ == "__main__":
+    # TODO: Have task name be a command line argument, which is mapped to the data categories
+    # TODO: Make sure that numclaim uses the same dataset as sentiment analysis
+    # Set task name and data category
+    task_name = "fomc_communication"
+    data_category = task_data_map[task_name]["data_category"]
+    instruction = task_data_map[task_name]["instruction"]
 
-# get pipeline ready for instruction text generation
-generate_text = InstructionTextGenerationPipeline(model=model, tokenizer=tokenizer)
+    # get model and tokenizer
+    model, tokenizer = get_dolly(QUANTIZATION)
 
-for seed in [5768, 78516, 944601]:
-    # assign seed to numpy and PyTorch
-    torch.manual_seed(seed)
-    np.random.seed(seed)
+    # get pipeline ready for instruction text generation
+    generate_text = InstructionTextGenerationPipeline(model=model, tokenizer=tokenizer)
 
-    start_t = time()
-    # load test data
-    test_data_path = (
-        "../data/test/lab-manual-split-combine-test" + "-" + str(seed) + ".xlsx"
-    )
-    data_df = pd.read_excel(test_data_path)
+    for seed in tqdm(SEEDS):
+        logger = setup_logger(f"seed_{seed}")
+        # assign seed to numpy and PyTorch
+        torch.manual_seed(seed)
+        np.random.seed(seed)
 
-    sentences = data_df["sentence"].to_list()
-    labels = data_df["label"].to_numpy()
+        start_t = time()
+        # load test data
+        # TODO: add task name to data path
+        TEST_DATA = ROOT_DIRECTORY / "data" / "test"
+        TEST_DATA.mkdir(parents=True, exist_ok=True)
+        test_data_path = TEST_DATA / f"{data_category}-test-{seed}.xlsx"
+        logger.info(f"Loading test data from {test_data_path}")
+        data_df = pd.read_excel(test_data_path)
 
-    prompts_list = []
-    for sen in sentences:
-        prompt = (
-            "Discard all the previous instructions. Behave like you are an expert sentence classifier. Classify the following sentence from FOMC into 'HAWKISH', 'DOVISH', or 'NEUTRAL' class. Label 'HAWKISH' if it is corresponding to tightening of the monetary policy, 'DOVISH' if it is corresponding to easing of the monetary policy, or 'NEUTRAL' if the stance is neutral. Provide the label in the first line and provide a short explanation in the second line. The sentence: "
-            + sen
+        sentences = data_df["sentence"].to_list()
+        logger.info(f"Number of sentences: {len(sentences)}")
+        labels = data_df["label"].to_numpy()
+        logger.info(f"Number of labels: {len(labels)}")
+
+        prompts_list = []
+        for sen in tqdm(sentences, desc="Generating prompts"):
+            prompt = instruction + sen
+            prompts_list.append(prompt)
+
+        logger.info("Prompts generated. Running model inference...")
+        res = generate_text(prompts_list)
+        logger.info("Model inference completed. Processing outputs...")
+
+        output_list = []
+        for i in range(len(res)):
+            output_list.append([labels[i], sentences[i], res[i][0]["generated_text"]])
+        logger.info(f"Number of outputs: {len(output_list)}")
+
+        results = pd.DataFrame(
+            output_list, columns=["true_label", "original_sent", "text_output"]
         )
-        prompts_list.append(prompt)
-
-    res = generate_text(prompts_list)
-
-    output_list = []
-
-    for i in range(len(res)):
-        output_list.append([labels[i], sentences[i], res[i][0]["generated_text"]])
-
-    results = pd.DataFrame(
-        output_list, columns=["true_label", "original_sent", "text_output"]
-    )
-    time_taken = int((time() - start_t) / 60.0)
-    results.to_csv(
-        f'../data/llm_prompt_outputs/dolly_{seed}_{today.strftime("%d_%m_%Y")}_{time_taken}.csv',
-        index=False,
-    )
+        time_taken = int((time() - start_t) / 60.0)
+        logger.info(f"Time taken: {time_taken} minutes")
+        PROMPT_OUTPUTS = TEST_DATA / "llm_prompt_outputs" / task_name
+        PROMPT_OUTPUTS.mkdir(parents=True, exist_ok=True)
+        results_fp = f"dolly_{seed}_{TODAY.strftime('%d_%m_%Y')}_{time_taken}.csv"
+        results.to_csv(
+            PROMPT_OUTPUTS / results_fp,
+            index=False,
+        )

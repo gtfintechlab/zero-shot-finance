@@ -4,7 +4,6 @@ from pathlib import Path
 ROOT_DIRECTORY = Path(__file__).resolve().parent.parent.parent
 if str(ROOT_DIRECTORY) not in sys.path:
     sys.path.insert(0, str(ROOT_DIRECTORY))
-TEST_DATA = ROOT_DIRECTORY / "data" / "test"
 
 from time import time
 
@@ -14,18 +13,20 @@ import torch
 from instruct_pipeline import InstructionTextGenerationPipeline
 from tqdm.auto import tqdm
 
-from src.config import QUANTIZATION, SEEDS, TODAY  # , BATCH_SIZE
+from src.config import QUANTIZATION, SEEDS, TODAY
 from src.dolly.model import get_dolly
 from src.utils.logging import setup_logger
-
-# from src.utils.model_utils import create_batches
+from src.instructions import task_data_map
 
 logger = setup_logger(__name__)
 
 if __name__ == "__main__":
+    # TODO: Have task name be a command line argument, which is mapped to the data categories
+    # TODO: Make sure that numclaim uses the same dataset as sentiment analysis
     # Set task name and data category
     task_name = "sentiment_analysis"
-    data_category = f"FPB-sentiment-analysis-allagree"
+    data_category = task_data_map[task_name]["data_category"]
+    instruction = task_data_map[task_name]["instruction"]
 
     # get model and tokenizer
     model, tokenizer = get_dolly(QUANTIZATION)
@@ -41,6 +42,9 @@ if __name__ == "__main__":
 
         start_t = time()
         # load test data
+        # TODO: add task name to data path
+        TEST_DATA = ROOT_DIRECTORY / "data" / "test"
+        TEST_DATA.mkdir(parents=True, exist_ok=True)
         test_data_path = TEST_DATA / f"{data_category}-test-{seed}.xlsx"
         logger.info(f"Loading test data from {test_data_path}")
         data_df = pd.read_excel(test_data_path)
@@ -52,33 +56,17 @@ if __name__ == "__main__":
 
         prompts_list = []
         for sen in tqdm(sentences, desc="Generating prompts"):
-            prompt = (
-                "Discard all the previous instructions. Behave like you are an expert sentence sentiment classifier. Classify the following sentence into 'NEGATIVE', 'POSITIVE', or 'NEUTRAL' class. Label 'NEGATIVE' if it is corresponding to negative sentiment, 'POSITIVE' if it is corresponding to positive sentiment, or 'NEUTRAL' if the sentiment is neutral. Provide the label in the first line and provide a short explanation in the second line. The sentence: "
-                + sen
-            )
+            prompt = instruction + sen
             prompts_list.append(prompt)
 
         logger.info("Prompts generated. Running model inference...")
-
         res = generate_text(prompts_list)
         logger.info("Model inference completed. Processing outputs...")
-        # WIP: Batching
-        # all_results = []
-        # for batch in tqdm(
-        #     create_batches(prompts_list, BATCH_SIZE), desc="Processing batches"
-        # ):
-        #     batch_results = generate_text(batch)
-        #     all_results.extend(batch_results)
 
         output_list = []
         for i in range(len(res)):
             output_list.append([labels[i], sentences[i], res[i][0]["generated_text"]])
         logger.info(f"Number of outputs: {len(output_list)}")
-        # WIP: Batching
-        # for i in tqdm(range(len(all_results)), desc="Processing outputs"):
-        #     output_list.append(
-        #         [labels[i], sentences[i], all_results[i][0]["generated_text"]]
-        #     )
 
         results = pd.DataFrame(
             output_list, columns=["true_label", "original_sent", "text_output"]

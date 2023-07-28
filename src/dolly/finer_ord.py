@@ -1,75 +1,98 @@
-import os
-from datetime import date
+import sys
+from pathlib import Path
+
+ROOT_DIRECTORY = Path(__file__).resolve().parent.parent.parent
+if str(ROOT_DIRECTORY) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIRECTORY))
+
 from time import time
 
+import numpy as np
 import pandas as pd
 import torch
 from instruct_pipeline import InstructionTextGenerationPipeline
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from tqdm.auto import tqdm
 
-today = date.today()
-seeds = [5768, 78516, 944601]
+from src.config import QUANTIZATION, SEEDS, TODAY
+from src.dolly.model import get_dolly
+from src.utils.logging import setup_logger
+from src.instructions import task_data_map
 
-# set gpu
-os.environ["CUDA_VISIBLE_DEVICES"] = str("0")
-device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-print("Device assigned: ", device)
+logger = setup_logger(__name__)
 
-# get model and tokenizer
-tokenizer = AutoTokenizer.from_pretrained(
-    "databricks/dolly-v2-12b", padding_side="left"
-)
-model = AutoModelForCausalLM.from_pretrained(
-    "databricks/dolly-v2-12b", device_map="auto", torch_dtype=torch.bfloat16
-)
+if __name__ == "__main__":
+    # TODO: Have task name be a command line argument, which is mapped to the data categories
+    # TODO: Make sure that numclaim uses the same dataset as sentiment analysis
+    # Set task name and data category
+    task_name = "finer_ord"
+    data_category = task_data_map[task_name]["data_category"]
+    instruction = task_data_map[task_name]["instruction"]
 
-# get pipeline ready for instruction text generation
-generate_text = InstructionTextGenerationPipeline(model=model, tokenizer=tokenizer)
+    # get model and tokenizer
+    model, tokenizer = get_dolly(QUANTIZATION)
 
+    # get pipeline ready for instruction text generation
+    generate_text = InstructionTextGenerationPipeline(model=model, tokenizer=tokenizer)
 
-start_t = time()
-# load training data
-test_data_path = "../data/test/test.csv"
-data_df = pd.read_csv(test_data_path)
+    for seed in tqdm(SEEDS):
+        logger = setup_logger(f"seed_{seed}")
+        # assign seed to numpy and PyTorch
+        torch.manual_seed(seed)
+        np.random.seed(seed)
 
-grouped_df = (
-    data_df.groupby(["doc_idx", "sent_idx"])
-    .agg({"gold_label": lambda x: list(x), "gold_token": lambda x: list(x)})
-    .reset_index()
-)
-grouped_df.columns = ["doc_idx", "sent_idx", "gold_label", "gold_token"]
+        start_t = time()
+        # load test data
+        # TODO: add task name to data path
+        TEST_DATA = ROOT_DIRECTORY / "data" / "test"
+        TEST_DATA.mkdir(parents=True, exist_ok=True)
+        test_data_path = TEST_DATA / f"{data_category}-test-{seed}.xlsx"
+        logger.info(f"Loading test data from {test_data_path}")
+        # TODO: make it so that the data for finer_ord is an excel sheet so I can load from that not csv
+        data_df = pd.read_csv(test_data_path)
 
-
-prompts_list = []
-
-for index in range(grouped_df.shape[0]):
-    token_list = grouped_df.loc[[index], ["gold_token"]].values[0, 0]
-    label_list = grouped_df.loc[[index], ["gold_label"]].values[0, 0]
-    sen = "\n".join(token_list)
-
-    prompt = (
-        "Discard all the previous instructions. Behave like you are an expert named entity identifier. Below a sentence is tokenized and each line contains a word token from the sentence. Identify 'Person', 'Location', and 'Organisation' from them and label them. If the entity is multi token use post-fix _B for the first label and _I for the remaining token labels for that particular entity. The start of the separate entity should always use _B post-fix for the label. If the token doesn't fit in any of those three categories or is not a named entity label it 'Other'. Do not combine words yourself. Use a colon to separate token and label. So the format should be token:label. \n\n"
-        + sen
-    )
-
-    prompts_list.append(prompt)
-
-res = generate_text(prompts_list)
-
-output_list = []
-
-for i in range(len(res)):
-    token_list = grouped_df.loc[[i], ["gold_token"]].values[0, 0]
-    label_list = grouped_df.loc[[i], ["gold_label"]].values[0, 0]
-    sen = "\n".join(token_list)
-    output_list.append([label_list, sen, res[i][0]["generated_text"]])
+        grouped_df = (
+            data_df.groupby(["doc_idx", "sent_idx"])
+            .agg({"gold_label": lambda x: list(x), "gold_token": lambda x: list(x)})
+            .reset_index()
+        )
+        grouped_df.columns = ["doc_idx", "sent_idx", "gold_label", "gold_token"]
+        logger.info(f"Number of sentences: {len(grouped_df)}")
+        # TODO: log a count of unique gold labels
+        logger.info(f"Number of labels: <NotImplementedError>")
 
 
-results = pd.DataFrame(
-    output_list, columns=["true_label", "original_sent", "text_output"]
-)
-time_taken = int((time() - start_t) / 60.0)
+        prompts_list = []
+        for index in range(grouped_df.shape[0]):
+            token_list = grouped_df.loc[[index], ["gold_token"]].values[0, 0]
+            label_list = grouped_df.loc[[index], ["gold_label"]].values[0, 0]
+            sen = "\n".join(token_list)
 
-results.to_pickle(
-    f'../data/llm_prompt_outputs/dolly_{today.strftime("%d_%m_%Y")}_{time_taken}'
-)
+            prompt = (
+                instruction + sen
+            )
+            prompts_list.append(prompt)
+
+        logger.info("Prompts generated. Running model inference...")
+        res = generate_text(prompts_list)
+        logger.info("Model inference completed. Processing outputs...")
+
+        output_list = []
+        for i in range(len(res)):
+            token_list = grouped_df.loc[[i], ["gold_token"]].values[0, 0]
+            label_list = grouped_df.loc[[i], ["gold_label"]].values[0, 0]
+            sen = "\n".join(token_list)
+            output_list.append([label_list, sen, res[i][0]["generated_text"]])
+            logger.info(f"Number of outputs: {len(output_list)}")
+
+        results = pd.DataFrame(
+            output_list, columns=["true_label", "original_sent", "text_output"]
+        )
+        time_taken = int((time() - start_t) / 60.0)
+        logger.info(f"Time taken: {time_taken} minutes")
+        PROMPT_OUTPUTS = TEST_DATA / "llm_prompt_outputs" / task_name
+        PROMPT_OUTPUTS.mkdir(parents=True, exist_ok=True)
+        results_fp = f"dolly_{TODAY.strftime('%d_%m_%Y')}_{time_taken}.pkl"
+        results.to_pickle(
+            PROMPT_OUTPUTS / results_fp,
+            index=False,
+        )
