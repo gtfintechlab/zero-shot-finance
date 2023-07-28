@@ -51,17 +51,23 @@ def main(args):
         torch.manual_seed(seed)
         np.random.seed(seed)
 
-        start_t = time()
-
-        # TODO: I shouldn't need to make these directories, they should exist -- if they dont, throw an error!
+        # Setup directories and filepaths
+        # TODO: I shouldn't need to make the data or test directory -- they should exist -- if they dont, throw an error!
         DATA_DIRECTORY = ROOT_DIRECTORY / "data"
         DATA_DIRECTORY.mkdir(parents=True, exist_ok=True)
+        TEST_DIRECTORY = DATA_DIRECTORY / "test"
+        TEST_DIRECTORY.mkdir(parents=True, exist_ok=True)
+
         TASK_DIRECTORY = DATA_DIRECTORY / args.task_name
         TASK_DIRECTORY.mkdir(parents=True, exist_ok=True)
-        TEST_DIRECTORY = TASK_DIRECTORY / "test"
-        TEST_DIRECTORY.mkdir(parents=True, exist_ok=True)
+        PROMPT_OUTPUTS = (
+                TASK_DIRECTORY / "llm_prompt_outputs" / args.task_name / args.quantization
+        )
+        PROMPT_OUTPUTS.mkdir(parents=True, exist_ok=True)
         test_data_fp = TEST_DIRECTORY / f"{data_category}-test-{seed}.xlsx"
+        results_fp = f"dolly_{seed}_{TODAY.strftime('%d_%m_%Y')}_{time_taken}.csv"
 
+        start_t = time()
         logger.info(f"Loading test data from {test_data_fp}")
         data_df = pd.read_excel(test_data_fp)
         sentences = data_df["sentence"].to_list()
@@ -88,11 +94,6 @@ def main(args):
         )
         time_taken = int((time() - start_t) / 60.0)
         logger.info(f"Time taken: {time_taken} minutes")
-        PROMPT_OUTPUTS = (
-                TEST_DIRECTORY / "llm_prompt_outputs" / args.task_name / args.quantization
-        )
-        PROMPT_OUTPUTS.mkdir(parents=True, exist_ok=True)
-        results_fp = f"dolly_{seed}_{TODAY.strftime('%d_%m_%Y')}_{time_taken}.csv"
         results.to_csv(
             PROMPT_OUTPUTS / results_fp,
             index=False,
