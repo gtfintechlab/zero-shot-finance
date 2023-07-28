@@ -55,14 +55,13 @@ def main(args):
         # TODO: I shouldn't need to make the data or test directory -- they should exist -- if they dont, throw an error!
         DATA_DIRECTORY = ROOT_DIRECTORY / "data"
         DATA_DIRECTORY.mkdir(parents=True, exist_ok=True)
-        TEST_DIRECTORY = DATA_DIRECTORY / "test"
-        TEST_DIRECTORY.mkdir(parents=True, exist_ok=True)
-
         TASK_DIRECTORY = DATA_DIRECTORY / args.task_name
         TASK_DIRECTORY.mkdir(parents=True, exist_ok=True)
+        TEST_DIRECTORY = TASK_DIRECTORY / "test"
+        TEST_DIRECTORY.mkdir(parents=True, exist_ok=True)
         PROMPT_OUTPUTS = TASK_DIRECTORY / "llm_prompt_outputs" / args.quantization
         PROMPT_OUTPUTS.mkdir(parents=True, exist_ok=True)
-        test_data_fp = TEST_DIRECTORY / f"{data_category}-test-{seed}.xlsx"
+        test_data_fp = PROMPT_OUTPUTS / f"{data_category}-test-{seed}.xlsx"
         results_fp = f"dolly_{seed}_{TODAY.strftime('%d_%m_%Y')}_{time_taken}.csv"
 
         start_t = time()
