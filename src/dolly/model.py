@@ -12,6 +12,7 @@ logger = setup_logger(__name__)
 
 VALID_MODELS = ["databricks/dolly-v2-12b"]
 
+
 def get_model(args):
     if torch.cuda.is_available():
         cuda_n_gpus = torch.cuda.device_count()

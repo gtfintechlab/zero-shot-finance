@@ -17,7 +17,9 @@ files_xls = [f for f in files if "falcon" in f]
 for file in files_xls:
     df = pd.read_csv("../data/llm_prompt_outputs/" + file)
 
-    df["predicted_label"] = df["text_output"].apply(lambda x: sentiment_analysis_decode(x))
+    df["predicted_label"] = df["text_output"].apply(
+        lambda x: sentiment_analysis_decode(x)
+    )
     acc_list.append(accuracy_score(df["true_label"], df["predicted_label"]))
     f1_list.append(
         f1_score(df["true_label"], df["predicted_label"], average="weighted")

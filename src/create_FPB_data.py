@@ -7,7 +7,9 @@ import sys
 import datasets
 import zipfile
 from src.utils.logging import setup_logger
+
 logger = setup_logger(__name__)
+
 
 def encode(label_word):
     if label_word == "positive":
@@ -30,7 +32,7 @@ def get_FPB_dataset():
     logger.info(f"Saving FPB to {zip_path}")
     dataset.save_to_disk(zip_path)
     # Unzip the file
-    logger.info(f"Unzipping {zip_path}"
+    logger.info(f"Unzipping {zip_path}")
     with zipfile.ZipFile(zip_path, "r") as zip_ref:
         zip_ref.extractall("ExtractedFinancialPhraseBank")
 
@@ -48,9 +50,9 @@ def process_data():
     df["label"] = df["label"].apply(lambda x: encode(x))
 
     # TODO: have it build to the directories when reused i.e. numclaim_detection
-    TRAIN_DIRECTORY = DATA_DIRECTORY/ "sentiment_analysis" / "train"
+    TRAIN_DIRECTORY = DATA_DIRECTORY / "sentiment_analysis" / "train"
     TRAIN_DIRECTORY.mkdir(parents=True, exist_ok=True)
-    TEST_DIRECTORY = DATA_DIRECTORY/ "sentiment_analysis" / "test"
+    TEST_DIRECTORY = DATA_DIRECTORY / "sentiment_analysis" / "test"
     TEST_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
     for seed in tqdm(SEEDS):
@@ -71,6 +73,8 @@ if __name__ == "__main__":
         sys.path.insert(0, str(ROOT_DIRECTORY))
     DATA_DIRECTORY = ROOT_DIRECTORY / "data"
     DATA_DIRECTORY.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Building the FinancialPhraseBank dataset in data directory {DATA_DIRECTORY}")
+    logger.info(
+        f"Building the FinancialPhraseBank dataset in data directory {DATA_DIRECTORY}"
+    )
     get_FPB_dataset()
     process_data()
