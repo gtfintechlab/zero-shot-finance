@@ -165,5 +165,5 @@ cython_debug/
 #.idea/
 
 *best_model.pt
-prior/numclaim_detection/data/
+old_code/numclaim_detection/data/
 api_keys.py
