@@ -15,9 +15,6 @@ task_data_map = {
     "fomc_communication": {
         "data_category": "lab-manual-split-combine-test",
         "instruction": instruction_fomc_communication,
-    }
-    "finer_ord": {
-        "data_category": "test.csv",
-        "instruction": instruction_finer_ord
-    }
+    },
+    "finer_ord": {"data_category": "test.csv", "instruction": instruction_finer_ord},
 }

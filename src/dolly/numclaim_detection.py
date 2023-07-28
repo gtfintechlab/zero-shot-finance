@@ -15,8 +15,8 @@ from tqdm.auto import tqdm
 
 from src.config import QUANTIZATION, SEEDS, TODAY
 from src.dolly.model import get_dolly
-from src.utils.logging import setup_logger
 from src.instructions import task_data_map
+from src.utils.logging import setup_logger
 
 logger = setup_logger(__name__)
 

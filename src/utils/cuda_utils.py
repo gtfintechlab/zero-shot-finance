@@ -1,5 +1,4 @@
-from pynvml import (nvmlDeviceGetHandleByIndex, nvmlDeviceGetMemoryInfo,
-                    nvmlInit)
+from pynvml import nvmlDeviceGetHandleByIndex, nvmlDeviceGetMemoryInfo, nvmlInit
 
 
 def print_gpu_utilization():

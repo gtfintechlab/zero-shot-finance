@@ -15,8 +15,8 @@ from tqdm.auto import tqdm
 
 from src.config import QUANTIZATION, SEEDS, TODAY
 from src.dolly.model import get_dolly
-from src.utils.logging import setup_logger
 from src.instructions import task_data_map
+from src.utils.logging import setup_logger
 
 logger = setup_logger(__name__)
 
@@ -60,16 +60,13 @@ if __name__ == "__main__":
         # TODO: log a count of unique gold labels
         logger.info(f"Number of labels: <NotImplementedError>")
 
-
         prompts_list = []
         for index in range(grouped_df.shape[0]):
             token_list = grouped_df.loc[[index], ["gold_token"]].values[0, 0]
             label_list = grouped_df.loc[[index], ["gold_label"]].values[0, 0]
             sen = "\n".join(token_list)
 
-            prompt = (
-                instruction + sen
-            )
+            prompt = instruction + sen
             prompts_list.append(prompt)
 
         logger.info("Prompts generated. Running model inference...")

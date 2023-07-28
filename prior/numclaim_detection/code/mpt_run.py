@@ -10,8 +10,12 @@ from time import time
 import numpy as np
 import pandas as pd
 import torch
-from transformers import (AutoConfig, AutoModelForCausalLM, AutoTokenizer,
-                          TextGenerationPipeline)
+from transformers import (
+    AutoConfig,
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    TextGenerationPipeline,
+)
 
 today = date.today()
 seeds = [5768, 78516, 944601]
