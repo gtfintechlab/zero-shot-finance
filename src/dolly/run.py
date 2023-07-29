@@ -59,9 +59,9 @@ def main(args):
         TEST_DIRECTORY.mkdir(parents=True, exist_ok=True)
         PROMPT_OUTPUTS = TASK_DIRECTORY / "llm_prompt_outputs" / args.quantization
         PROMPT_OUTPUTS.mkdir(parents=True, exist_ok=True)
-        test_data_fp = PROMPT_OUTPUTS / f"{data_category}-test-{seed}.xlsx"
 
         start_t = time()
+        test_data_fp = TEST_DIRECTORY / f"{data_category}-test-{seed}.xlsx"
         logger.info(f"Loading test data from {test_data_fp}")
         data_df = pd.read_excel(test_data_fp)
         sentences = data_df["sentence"].to_list()
