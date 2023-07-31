@@ -32,7 +32,6 @@ from src.args import parse_args
 
 
 def main(args):
-
     data_category = task_data_map[args.task_name]["data_category"]
     instruction = task_data_map[args.task_name]["instruction"]
 
