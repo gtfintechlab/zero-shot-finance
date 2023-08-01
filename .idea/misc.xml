@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Black">
+    <option name="enabledOnReformat" value="true" />
+    <option name="pathToExecutable" value="$USER_HOME$/miniconda/bin/black" />
+    <option name="sdkUUID" value="56b2937f-3135-4a76-bc7d-e9fbe1255af9" />
+  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.10 (qllm)" project-jdk-type="Python SDK" />
+</project>
